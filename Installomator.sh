@@ -1009,8 +1009,16 @@ installFromPKG() {
         printlog "Checking package version."
         baseArchiveName=$(basename $archiveName)
         expandedPkg="$tmpDir/${baseArchiveName}_pkg"
+        printlog "Expanding $archiveName to $expandedPkg" DEBUG
         pkgutil --expand "$archiveName" "$expandedPkg"
+        printlog "Expand Check $(ls -lh "$expandedPkg")" DEBUG
         appNewVersion=$(cat "$expandedPkg"/Distribution | xpath "string(//installer-gui-script/pkg-ref[@id='$packageID'][@version]/@version)" 2>/dev/null )
+        if [[ -z $appNewVersion ]]; then
+            printlog "No version found in Distribution file, trying bundle ID" DEBUG
+            appNewVersion=$(xmllint --xpath "string(//bundle[@id='$packageID']/@CFBundleShortVersionString)" "$expandedPkg" | xargs)
+        else
+            printlog "Found version $appNewVersion in Distribution file" DEBUG
+        fi
         rm -r "$expandedPkg"
         printlog "Downloaded package $packageID version $appNewVersion"
         if [[ $appversion == $appNewVersion ]]; then

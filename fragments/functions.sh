@@ -596,9 +596,9 @@ mountDMG() {
     # mount the dmg
     printlog "Mounting $tmpDir/$archiveName"
     # always pipe 'Y\n' in case the dmg requires an agreement
-    dmgmountOut=$(echo 'Y'$'\n' | hdiutil attach "$tmpDir/$archiveName" -nobrowse -readonly )
+    dmgmountOut=$(echo 'Y'$'\n' | hdiutil attach "$tmpDir/$archiveName" -nobrowse -readonly -plist)
     dmgmountStatus=$(echo $?)
-    dmgmount=$(echo $dmgmountOut | tail -n 1 | cut -c 54- )
+    dmgmount=$(echo "$dmgmountOut" | xmllint --xpath 'string(//key[.="mount-point"]/following-sibling::string[1])' -)
     deduplicatelogs "$dmgmountOut"
 
     if [[ $dmgmountStatus -ne 0 ]] ; then
