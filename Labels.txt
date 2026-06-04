@@ -55,6 +55,7 @@ anaconda
 anastasiysextensionmanager
 androidfiletransfer
 androidstudio
+anki
 anotherredisdesktopmanager
 antconc
 anydesk
@@ -113,6 +114,7 @@ basictex
 bbedit
 bbeditpkg
 beamstudio
+beekeeperstudio
 betterdisplay
 bettertouchtool
 betterzip
@@ -230,7 +232,9 @@ coconutbattery
 code42
 codemeter
 coderunner
+codex
 colourcontrastanalyser
+conductor
 connectfonts
 container
 cormorant
@@ -272,6 +276,7 @@ dialog
 dialpad
 digiexam
 discord
+discordcanary
 diskdrill
 diskspace
 displaylinkmanager
@@ -302,6 +307,7 @@ eastwestinstallationcenter
 eastwestopus
 eastwestplay
 easyfind
+eclipseideforjavadevelopers
 eclipsetemurin11
 eclipsetemurin17
 eclipsetemurin21
@@ -342,6 +348,7 @@ fantastical
 fastscripts
 favro
 fellow
+ffmpegmartinriedl
 fierycommandworkstation
 figma
 filemakerpro
@@ -361,8 +368,9 @@ firefox_da
 firefox_intl
 firefoxdeveloperedition
 firefoxesr
-firefoxesr_intl
+firefoxesrintl
 firefoxesrpkg
+firefoxesrpkgintl
 firefoxpkg
 firefoxpkg_intl
 flexoptixapp
@@ -400,6 +408,7 @@ globusconnectpersonal
 glpiagent
 glyphs3
 gns3
+goland
 golang
 googleadseditor
 googlechrome
@@ -420,8 +429,10 @@ gotomeeting
 gotowebinar
 gpgsuite
 gpgsync
+gram
 grammarly
 grandperspective
+granola
 graphicconverter10
 grasshopper
 grooveomnidialerenterpriseedition
@@ -536,6 +547,7 @@ keyshot
 keyshot12
 keyshot2024
 keystoreexplorer
+kicad
 kimplusclientmodul
 kiro
 kirocli
@@ -551,6 +563,7 @@ latexit
 launchbar
 launchcontrol
 lcadvancedvpnclient
+lens
 lexarrecoverytool
 lgcalibrationstudio
 libericajdk11ltsfull
@@ -606,6 +619,7 @@ masv
 mattermost
 maxcycling74
 maxonapp
+maxqda24
 mdmwatchdog
 meetingbar
 meistertask
@@ -625,6 +639,7 @@ microsoftedgeconsumerstable
 microsoftedgeenterprisestable
 microsoftexcel
 microsoftexcelreset
+microsoftglobalsecureaccessclient
 microsoftlicenseremovaltool
 microsoftlicensereset
 microsoftoffice365
@@ -646,6 +661,7 @@ microsoftoutlookdataremoval
 microsoftoutlookreset
 microsoftpowerpoint
 microsoftpowerpointreset
+microsoftpowershell
 microsoftremotedesktop
 microsoftremotehelp
 microsoftsharepointplugin
@@ -718,6 +734,7 @@ nordvpn
 notion
 nova
 nps-santa
+npssantafull
 nudge
 nudgesuite
 numi
@@ -744,6 +761,7 @@ omnioutliner6
 omniplan3
 omniplan4
 omnipresence
+omnissahorizonclient
 omnissahorizonclient
 onionshare
 onlyofficedesktop
@@ -776,6 +794,7 @@ parallelsrasclient
 paretosecurity
 parsec
 particulars
+passwordutility
 patchomator
 pcoipclient
 pdfexpert
@@ -830,6 +849,7 @@ python
 qgis-pr
 qlab
 r
+radiosilence
 raindropio
 rancherdesktop
 rapidapi
@@ -1018,6 +1038,7 @@ textmate
 theunarchiver
 things
 thonny
+thoriumreader
 thunderbird
 thunderbird_intl
 thunderbirdesr
@@ -1040,6 +1061,7 @@ tophat
 torbrowser
 tortalk_en
 tortalk_se
+touchdesigner
 tower
 transfer
 transmit5
@@ -1065,6 +1087,7 @@ uniconverter
 unityhub
 universaltypeclient
 unnaturalscrollwheels
+upscayl
 utiluti
 utm
 uviportal
@@ -1096,6 +1119,8 @@ vncconnect
 vonagebusiness
 vpntracker365
 vscodium
+vuescanintel
+vuescanuni
 vysor
 wacomdrivers
 wallyezflash
@@ -1116,6 +1141,7 @@ whimsical
 whiterabbit
 windsurf
 wireshark
+wisenetwave
 wisprflow
 wordservice
 workbrew
@@ -1124,6 +1150,7 @@ wrikeformac
 wwdc
 xattred
 xbar
+xcodesapp
 xcreds
 xeroxphaser7800
 xeroxprintandscan
@@ -1166,5 +1193,6 @@ zulujdk17
 zulujdk18
 zulujdk21
 zulujdk23
+zulujdk25
 zulujdk8
 zulujdkfx17
