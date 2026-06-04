@@ -348,8 +348,8 @@ if [[ $(/usr/bin/arch) == "arm64" ]]; then
         rosetta2=no
     fi
 fi
-VERSION="10.9beta"
-VERSIONDATE="2026-06-02"
+VERSION="10.9"
+VERSIONDATE="2026-06-04"
 
 # MARK: Functions
 
@@ -840,7 +840,7 @@ installAppWithPath() { # $1: path to app to install in $targetDir $2: path to fo
 
     # app versioncheck
     appNewVersion=$(defaults read $appPath/Contents/Info.plist $versionKey)
-    if [[ -n $appNewVersion && $appversion == $appNewVersion ]]; then
+    if [[ -n $appNewVersion ]] && is-at-least $appNewVersion $appversion; then
         printlog "Downloaded version of $name is $appNewVersion on versionKey $versionKey, same as installed."
         if [[ $INSTALL != "force" ]]; then
             message="$name, version $appNewVersion, is the latest version."
@@ -949,9 +949,9 @@ mountDMG() {
     # mount the dmg
     printlog "Mounting $tmpDir/$archiveName"
     # always pipe 'Y\n' in case the dmg requires an agreement
-    dmgmountOut=$(echo 'Y'$'\n' | hdiutil attach "$tmpDir/$archiveName" -nobrowse -readonly )
+    dmgmountOut=$(echo 'Y'$'\n' | hdiutil attach "$tmpDir/$archiveName" -nobrowse -readonly -plist)
     dmgmountStatus=$(echo $?)
-    dmgmount=$(echo $dmgmountOut | tail -n 1 | cut -c 54- )
+    dmgmount=$(echo "$dmgmountOut" | xmllint --xpath 'string(//key[.="mount-point"]/following-sibling::string[1])' -)
     deduplicatelogs "$dmgmountOut"
 
     if [[ $dmgmountStatus -ne 0 ]] ; then
@@ -1010,16 +1010,8 @@ installFromPKG() {
         printlog "Checking package version."
         baseArchiveName=$(basename $archiveName)
         expandedPkg="$tmpDir/${baseArchiveName}_pkg"
-        printlog "Expanding $archiveName to $expandedPkg" DEBUG
         pkgutil --expand "$archiveName" "$expandedPkg"
-        printlog "Expand Check $(ls -lh "$expandedPkg")" DEBUG
         appNewVersion=$(cat "$expandedPkg"/Distribution | xpath "string(//installer-gui-script/pkg-ref[@id='$packageID'][@version]/@version)" 2>/dev/null )
-        if [[ -z $appNewVersion ]]; then
-            printlog "No version found in Distribution file, trying bundle ID" DEBUG
-            appNewVersion=$(xmllint --xpath "string(//bundle[@id='$packageID']/@CFBundleShortVersionString)" "$expandedPkg" | xargs)
-        else
-            printlog "Found version $appNewVersion in Distribution file" DEBUG
-        fi
         rm -r "$expandedPkg"
         printlog "Downloaded package $packageID version $appNewVersion"
         if [[ $appversion == $appNewVersion ]]; then
@@ -2090,6 +2082,18 @@ amazoncorretto23jdk)
     )"
     expectedTeamID="94KV3E626L"
     appCustomVersion(){ if [ -f "/Library/Java/JavaVirtualMachines/amazon-corretto-23.jdk/Contents/Info.plist" ]; then /usr/bin/defaults read "/Library/Java/JavaVirtualMachines/amazon-corretto-23.jdk/Contents/Info.plist" "CFBundleVersion" ; fi }
+    ;;
+amazoncorretto25jdk)
+    name="Amazon Corretto 25 JDK"
+    type="pkg"
+    packageID="com.amazon.corretto.25"
+    if [[ "$arch" == "arm64" ]]; then
+        downloadURL="https://corretto.aws/downloads/latest/amazon-corretto-25-aarch64-macos-jdk.pkg"
+    else
+        downloadURL="https://corretto.aws/downloads/latest/amazon-corretto-25-x64-macos-jdk.pkg"
+    fi
+    appNewVersion="$(curl -Ls https://raw.githubusercontent.com/corretto/corretto-25/develop/CHANGELOG.md | grep "## Corretto version" | head -n 1 | awk '{ print $NF}')"
+    expectedTeamID="94KV3E626L"
     ;;
 amazoncorretto8jdk)
     name="Amazon Corretto 8 JDK"
@@ -4146,6 +4150,18 @@ determinate)
     downloadURL=$(curl -fsIL https://install.determinate.systems/determinate-pkg/stable/Universal | awk -F' ' '/^location:/ {print $2}')
     appNewVersion=$(echo "$downloadURL" | cut -d/ -f4)
     expectedTeamID="X3JQ4VPJZ6"
+    ;;
+devin|\
+windsurf)
+    name="Devin"
+    type="dmg"
+    if [[ "$(arch)" == "arm64" ]]; then
+        downloadURL="$(curl -fsL "https://docs.devin.ai/desktop/releases" | grep -Eo 'https://[^"\]*-darwin-arm64-[0-9.]+\.dmg' | head -n 1)"
+    else
+        downloadURL="$(curl -fsL "https://docs.devin.ai/desktop/releases" | grep -Eo 'https://[^"\]*-darwin-x64-[0-9.]+\.dmg' | head -n 1)"
+    fi
+    appNewVersion="$(basename "$downloadURL" .dmg | awk -F- '{print $NF}')"
+    expectedTeamID="83Z2LHX6XW"
     ;;
 devonthink)
     name="DEVONthink"
@@ -7242,6 +7258,13 @@ maccyapp)
     appNewVersion="$(versionFromGit p0deje Maccy)"
     expectedTeamID="MN3X4648SC"
     ;;
+mace)
+    name="MACE"
+    type="dmg"
+    downloadURL=$(downloadURLFromGit "MACE-App" "MACE")
+    appNewVersion=$(versionFromGit "MACE-App" "MACE")
+    expectedTeamID="7U624389H9"
+    ;;
 macfuse)
     name="FUSE for macOS"
     type="pkgInDmg"
@@ -8519,7 +8542,13 @@ notion)
     name="Notion"
     type="dmg"
     downloadURL=$(curl -fsIL "https://www.notion.so/desktop/mac/download" | grep -i "^location" | awk '{print $2}' | tr -d '\r\n' | xargs)
-    appNewVersion=$(curl -fsIL "$downloadURL" | sed -e 's/.*Notion-\(.*\).dmg.*/\1/' | cut -d '-' -f 1)
+    appNewVersion=$(echo "$downloadURL" | sed -e 's/.*Notion-\(.*\).dmg.*/\1/' | cut -d '-' -f 1)
+    if [ "$(curl -s -o /dev/null -w '%{http_code}' -I "$downloadURL")" != "200" ]; then
+        altURL="${downloadURL/-universal.dmg/.dmg}"
+        if [ "$altURL" != "$downloadURL" ] && [ "$(curl -s -o /dev/null -w '%{http_code}' -I "$altURL")" = "200" ]; then
+            downloadURL="$altURL"
+        fi
+    fi
     expectedTeamID="LBQJ96FQ8D"
     ;;
 nova)
@@ -8788,6 +8817,18 @@ onyx)
     appNewVersion=$( curl -fs https://www.titanium-software.fr/en/onyx.html | grep -Eo "OnyX [0-9]+\.[0-9]+\.[0-9]+ for macOS [^ ]+ $osVersion" | awk '{print $2}' | sort -Vr | head -1 )
     versionKey="CFBundleShortVersionString"
     expectedTeamID="T49MRBL8UL"
+    ;;
+openai_atlas)
+    name="ChatGPT Atlas"
+    type="dmg"
+    if [[ $(arch) == "arm64" ]]; then
+        downloadURL="https://persistent.oaistatic.com/atlas/public/ChatGPT_Atlas.dmg"
+    else
+        printlog "ChatGPT Atlas is only compatible with Apple Silicon (arm64) Macs." ERROR
+        cleanupAndExit 95 "ChatGPT Atlas requires Apple Silicon" ERROR
+    fi
+    appNewVersion="$(curl -fs "https://persistent.oaistatic.com/atlas/public/sparkle_public_appcast.xml" | grep -o '<sparkle:shortVersionString>[^<]*' | head -1 | cut -d '>' -f 2)"
+    expectedTeamID="2DC432GLL2"
     ;;
 openeid)
     name="Open-EID"
@@ -12009,17 +12050,6 @@ whiterabbit)
 	appNewVersion="$(curl -fs https://delivery.kadomaru.app/white-rabbit/appcast.xml | xpath 'string(//item[1]/sparkle:shortVersionString')"
 	expectedTeamID="TRLMQKJQ97"
 	;;
-windsurf)
-    name="Windsurf"
-    type="zip"
-    myARCH="$(/usr/bin/arch)"
-    if [ "$myARCH" != "arm64" ]; then
-        myARCH=x64
-    fi
-    downloadURL="$( curl -s https://windsurf.com/editor/releases | tr '"\' "\n" | grep -m1 "darwin-$myARCH" )"
-    appNewVersion="$( echo "$downloadURL" | awk -F '-' '{ print $NF }' | cut -d '.' -f 1-3 )"
-    expectedTeamID="83Z2LHX6XW"
-    ;;
 wireshark)
     name="Wireshark"
     type="dmg"
@@ -12759,7 +12789,7 @@ if [[ "$type" != "updateronly" && ($INSTALL == "force" || $IGNORE_APP_STORE_APPS
 fi
 if [[ -n $appNewVersion ]]; then
     printlog "Latest version of $name is $appNewVersion"
-    if [[ $appversion == $appNewVersion ]]; then
+    if is-at-least $appNewVersion $appversion; then
         if [[ $DEBUG -ne 1 ]]; then
             printlog "There is no newer version available."
             if [[ $INSTALL != "force" ]]; then
