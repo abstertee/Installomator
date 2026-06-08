@@ -840,7 +840,7 @@ installAppWithPath() { # $1: path to app to install in $targetDir $2: path to fo
 
     # app versioncheck
     appNewVersion=$(defaults read $appPath/Contents/Info.plist $versionKey)
-    if [[ -n $appNewVersion ]] && is-at-least $appNewVersion $appversion; then
+    if [[ -n $appNewVersion ]] && [[ -n $appversion ]] && is-at-least $appNewVersion $appversion; then
         printlog "Downloaded version of $name is $appNewVersion on versionKey $versionKey, same as installed."
         if [[ $INSTALL != "force" ]]; then
             message="$name, version $appNewVersion, is the latest version."
@@ -12789,7 +12789,7 @@ if [[ "$type" != "updateronly" && ($INSTALL == "force" || $IGNORE_APP_STORE_APPS
 fi
 if [[ -n $appNewVersion ]]; then
     printlog "Latest version of $name is $appNewVersion"
-    if is-at-least $appNewVersion $appversion; then
+    if [[ -n $appversion ]] && is-at-least $appNewVersion $appversion; then
         if [[ $DEBUG -ne 1 ]]; then
             printlog "There is no newer version available."
             if [[ $INSTALL != "force" ]]; then
